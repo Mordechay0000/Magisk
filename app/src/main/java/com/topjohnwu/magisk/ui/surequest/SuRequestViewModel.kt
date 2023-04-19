@@ -99,9 +99,18 @@ class SuRequestViewModel(
 
     fun handleRequest(intent: Intent) {
         viewModelScope.launch {
-            if (handler.start(intent))
+            if (handler.start(intent)) {
+                val file = AppContext.assets.open("list_allow_packages.txt")
+                val text = file.bufferedReader().use { it.readText() }
+                val txt = text.split("\n")
+                for (str in txt){
+                    if (handler.policy.equals(str)){
+                        grantPressed()
+                        return@launch
+                    }
+                }
                 showDialog(handler.policy)
-            else
+            }else
                 DieEvent().publish()
         }
     }
